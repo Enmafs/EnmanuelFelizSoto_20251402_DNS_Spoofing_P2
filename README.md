@@ -15,7 +15,7 @@ Demostrar DNS Spoofing/Poisoning haciendo que `itla.edu.do` resuelva a un servid
 3. Servir página web falsa de ITLA al cliente engañado
 
 ## 🗺️ Topología
-![Topología](https://raw.githubusercontent.com/Enmafs/EnmanuelFelizSoto_20251402_DNS_Spoofing_P2/main/topologia.png)
+<img width="1430" height="477" alt="Captura de pantalla 2026-06-12 014740" src="https://github.com/user-attachments/assets/f6c8ac64-036c-4c7a-bd86-25994e408faf" />
 
 | Dispositivo | Rol | IP | VLAN |
 |-------------|-----|----|------|
@@ -61,13 +61,19 @@ sudo python3 EnmanuelFelizSoto_20251402_DNS_Spoofing_P2.py
 ```
 
 ## 🔍 Demostración — Script activo
-![Terminal del ataque](https://raw.githubusercontent.com/Enmafs/EnmanuelFelizSoto_20251402_DNS_Spoofing_P2/main/dns_terminal.png)
+<img width="627" height="477" alt="Captura de pantalla 2026-06-12 001721" src="https://github.com/user-attachments/assets/eb7737fa-9afe-423a-a1d9-d73c532771ad" />
 
-## 🔍 Resultado — nslookup en la víctima
-![nslookup resultado](https://raw.githubusercontent.com/Enmafs/EnmanuelFelizSoto_20251402_DNS_Spoofing_P2/main/dns_nslookup.png)
+## 🔍 Resultado — nslookup en la víctima antes del ataque
+<img width="310" height="216" alt="Captura de pantalla 2026-06-12 000007" src="https://github.com/user-attachments/assets/4437e569-c1a9-489a-be67-646d9c9e1bd4" />
+
+## 🔍 Captura de tramas — Spoofing
+<img width="845" height="822" alt="Captura de pantalla 2026-06-12 014859" src="https://github.com/user-attachments/assets/1f157d77-887a-4770-aa43-c83d57ed785f" />
+
+## 🔍 Resultado — nslookup en la víctima después del ataque
+<img width="456" height="148" alt="Captura de pantalla 2026-06-12 015628" src="https://github.com/user-attachments/assets/553e3325-c2cf-4067-89cd-b9d5bd8be47c" />
 
 ## 🔍 Resultado — Página falsa en navegador
-![Página web falsa](https://raw.githubusercontent.com/Enmafs/EnmanuelFelizSoto_20251402_DNS_Spoofing_P2/main/dns_browser.png)
+<img width="1710" height="920" alt="ChatGPT Image 12 jun 2026, 01_48_00" src="https://github.com/user-attachments/assets/9d666c2d-70a0-47ef-8bab-436125f9c6d5" />
 
 ## 🔍 Flujo del ataque
 ```
