@@ -3,115 +3,92 @@
 **Institución:** ITLA | **Curso:** Seguridad en Redes | **Práctica:** P2
 
 ## 📹 Video Demostración
-🔗 [Ver en YouTube — DNS Spoofing](https://youtu.be/NbU1oIHrnOo)
-🔗 [Playlist completa](https://www.youtube.com/playlist?list=PLn9wGcsdOtleB6unDjCUvq4LdJYgd4TTj)
+🔗 [▶ DNS Spoofing + Poisoning — Ver en YouTube](https://youtu.be/NbU1oIHrnOo)
+🔗 [Playlist completa NetSec](https://www.youtube.com/playlist?list=PLn9wGcsdOtleB6unDjCUvq4LdJYgd4TTj)
 
 ## 🎯 Objetivo del Laboratorio
-Demostrar DNS Spoofing/Poisoning haciendo que el dominio `itla.edu.do` resuelva a un servidor web controlado por el atacante, mediante ARP Poisoning como vector de intercepción.
+Demostrar DNS Spoofing/Poisoning haciendo que `itla.edu.do` resuelva a un servidor web del atacante, mediante ARP Poisoning como vector de intercepción.
 
 ## 🎯 Objetivo del Script
 1. Envenenar ARP entre víctima y DNS server para interceptar consultas
-2. Responder consultas DNS para `itla.edu.do` con IP del atacante
+2. Responder queries DNS para `itla.edu.do` con IP del atacante
 3. Servir página web falsa de ITLA al cliente engañado
+
+## 🗺️ Topología
+![Topología](https://raw.githubusercontent.com/Enmafs/EnmanuelFelizSoto_20251402_DNS_Spoofing_P2/main/topologia.png)
+
+| Dispositivo | Rol | IP | VLAN |
+|-------------|-----|----|------|
+| R1-CORE | Router / GW | 14.2.0.1 | — |
+| DNS Server | DNS legítimo | 14.2.0.11/25 | VLAN10 |
+| Docker atacante | ARP+DNS spoofer | 14.2.0.13/25 | VLAN10 |
+| Docker víctima | Objetivo | 14.2.0.12/25 | VLAN10 |
+
+**Entorno:** PNetLab — Cisco IOL + Docker | **Base IP:** Matrícula 20251402 → 14.2.0.0
+
+## 🔥 Reglas iptables (requeridas antes de lanzar el script)
+```bash
+sudo iptables -F && sudo iptables -t nat -F
+sudo iptables -A FORWARD -p udp --dport 53 -j DROP
+sudo iptables -A FORWARD -p tcp --dport 53 -j DROP
+sudo iptables -A OUTPUT  -p udp --dport 53 ! -d 14.2.0.13 -j DROP
+sudo iptables -A OUTPUT  -p tcp --dport 53 ! -d 14.2.0.13 -j DROP
+echo 1 > /proc/sys/net/ipv4/ip_forward
+```
 
 ## ⚙️ Requisitos
 ```bash
 pip install scapy
 sudo python3 EnmanuelFelizSoto_20251402_DNS_Spoofing_P2.py
 ```
-- Python 3.x / Scapy 2.5+ / Root/sudo
-- IP forwarding activo (el script lo habilita automáticamente)
 
-## 🔥 Reglas iptables necesarias
-Para que el ataque funcione correctamente cuando el DNS server
-está en la misma subred que la víctima, se deben aplicar estas
-reglas en el atacante **antes** de lanzar el script:
-
-```bash
-# Limpiar reglas previas
-sudo iptables -F
-sudo iptables -t nat -F
-
-# Bloquear todo DNS forward (impide que llegue al DNS real)
-sudo iptables -A FORWARD -p udp --dport 53 -j DROP
-sudo iptables -A FORWARD -p tcp --dport 53 -j DROP
-
-# Bloquear DNS saliente hacia cualquier server que no sea el atacante
-sudo iptables -A OUTPUT -p udp --dport 53 ! -d <TU_IP_ATACANTE> -j DROP
-sudo iptables -A OUTPUT -p tcp --dport 53 ! -d <TU_IP_ATACANTE> -j DROP
-
-# Habilitar IP forwarding permanente
-echo 1 > /proc/sys/net/ipv4/ip_forward
-```
-
-> Reemplaza `<TU_IP_ATACANTE>` con tu IP real (ej. `14.2.0.13`)
-
-## 📋 Parámetros (interactivos al ejecutar)
-| Campo | Descripción | Ejemplo lab |
-|-------|-------------|-------------|
+## 📋 Parámetros (interactivos)
+| Campo | Descripción | Ejemplo |
+|-------|-------------|---------|
 | Interfaz | Interfaz de red | `eth1` |
 | IP víctima | Host a engañar | `14.2.0.12` |
-| IP gateway/DNS | DNS server a interceptar | `14.2.0.11` |
-| Tu IP (fake) | IP que recibirá la víctima | `14.2.0.13` |
+| IP gateway/DNS | DNS a interceptar | `14.2.0.11` |
+| Tu IP | IP falsa para la víctima | `14.2.0.13` |
 | Dominio | Dominio a spoofear | `itla.edu.do` |
-| Puerto web | Puerto del servidor HTTP | `80` |
+| Puerto web | Servidor HTTP local | `80` |
 
 ## 🔧 Uso
 ```bash
-# 1. Aplicar reglas iptables (ver sección arriba)
-# 2. Lanzar el script
+# 1. Aplicar reglas iptables (arriba)
+# 2. Ejecutar
 sudo python3 EnmanuelFelizSoto_20251402_DNS_Spoofing_P2.py
-# 3. Seleccionar opción 4 (Ataque completo)
+# 3. Seleccionar opción 4 — Ataque completo
 ```
 
-## 🗺️ Topología de Red
-| Dispositivo | Rol | IP | VLAN |
-|-------------|-----|----|------|
-| R1-CORE | Router Core / GW | 14.2.0.1 | — |
-| DNS Server | Servidor DNS legítimo | 14.2.0.11/25 | VLAN10 |
-| Docker atacante | ARP+DNS spoofer | 14.2.0.13/25 | VLAN10 |
-| Docker víctima | Host objetivo | 14.2.0.12/25 | VLAN10 |
+## 🔍 Demostración — Script activo
+![Terminal del ataque](https://raw.githubusercontent.com/Enmafs/EnmanuelFelizSoto_20251402_DNS_Spoofing_P2/main/dns_terminal.png)
 
-**Nota topología:** Para que el ARP Poisoning intercepte el tráfico DNS,
-el DNS server debe estar en una VLAN/subred diferente a la víctima,
-o bien hacer ARP Poisoning directamente contra el DNS server.
+## 🔍 Resultado — nslookup en la víctima
+![nslookup resultado](https://raw.githubusercontent.com/Enmafs/EnmanuelFelizSoto_20251402_DNS_Spoofing_P2/main/dns_nslookup.png)
 
-## 🔍 Funcionamiento
+## 🔍 Resultado — Página falsa en navegador
+![Página web falsa](https://raw.githubusercontent.com/Enmafs/EnmanuelFelizSoto_20251402_DNS_Spoofing_P2/main/dns_browser.png)
+
+## 🔍 Flujo del ataque
 ```
 Víctima (.12)
     │ consulta DNS itla.edu.do
     ▼
-Atacante (.13)  ← ARP Poisoning hace que .12 crea que .13 es el GW/DNS
+Atacante (.13)  ← ARP Poisoning: .12 cree que .13 es el DNS
     │ intercepta query UDP port 53
-    │ responde con DNSRR: itla.edu.do → 14.2.0.13 (TTL 300)
+    │ responde: itla.edu.do → 14.2.0.13 (TTL 300)
     ▼
-Víctima recibe IP falsa → abre navegador → carga página del atacante
+Víctima abre navegador → carga página del atacante
 ```
 
 ## 🛡️ Contramedida
 ```
-! En el switch — Dynamic ARP Inspection
 SW(config)# ip dhcp snooping
-SW(config)# ip dhcp snooping vlan 10
 SW(config)# ip arp inspection vlan 10
-SW(config-if)# ip arp inspection trust   ← solo uplinks
-
-! En los clientes — DNSSEC
-! Configurar resolvers con soporte DNSSEC: 1.1.1.1, 8.8.8.8
-
-! DNS sobre TLS/HTTPS
-! Usar DNS-over-HTTPS (DoH) o DNS-over-TLS (DoT)
-
-! HSTS en el servidor web
-! Strict-Transport-Security para prevenir downgrade HTTP
-```
-
-## 📁 Estructura
-```
-├── EnmanuelFelizSoto_20251402_DNS_Spoofing_P2.py
-├── EnmanuelFelizSoto_20251402_Informe_P2.pdf
-├── screenshots/
-└── README.md
+SW(config-if)# ip arp inspection trust
+! DNSSEC en resolvers
+! DNS-over-HTTPS / DNS-over-TLS
+! HSTS en servidor web
 ```
 
 > ⚠️ Solo para uso en laboratorio controlado con contrato de ética firmado.
