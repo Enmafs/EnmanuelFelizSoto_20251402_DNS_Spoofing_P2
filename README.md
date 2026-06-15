@@ -97,4 +97,4 @@ SW(config-if)# ip arp inspection trust
 ! HSTS en servidor web
 ```
 
-> ⚠️ Solo para uso en laboratorio controlado con contrato de ética firmado.
+> ⚠️ Solo para uso en laboratorio controlado.
